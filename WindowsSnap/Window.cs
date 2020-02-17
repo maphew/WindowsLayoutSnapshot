@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace WindowsLayoutSnapshot
+namespace WindowsSnap
 {
     // Open source
     // Imported by: Adam Smith
@@ -23,20 +25,48 @@ namespace WindowsLayoutSnapshot
         private bool _visible = true;
         private bool _wasMax;
 
-        public Window(string title, IntPtr hWnd, string process)
+        public Window(string title, string text, IntPtr hWnd, Process process, WinRect winPos, WinRect winVis)
         {
-            this.Title = title;
-            this.HWnd = hWnd;
-            this.Process = process;
+            Title = title;
+            Text = text;
+            HWnd = hWnd;
+            Process = process;
+            WindowPosition = winPos;
+            WindowVisible = winVis;
         }
 
         public IntPtr HWnd { get; }
 
+        public WinRect WindowPosition { get; set; } // real window border, we use this to move it
+
+        public WinRect WindowVisible { get; set; } // visible window borders, we use this to force inside a screen
+
         public string Title { get; }
 
-        public string Process { get; }
+        public string Text { get; }
 
-        public bool Visible
+        internal Process Process
+        {
+            get => _process;
+            set
+            {
+                _process = value;
+                ProcessName = _process?.ProcessName ?? "";
+                ProcessId = _process?.Id.ToString() ?? "";
+                ProcessPath = _process?.MainModule?.FileName ?? "";
+            }
+        }
+        private Process _process;
+
+        public string ProcessName { get; set; } = "";
+
+        public string ProcessId { get; set; } = "";
+
+        public string ProcessPath { get; set; } = "";
+
+        internal string Details => $"{ProcessName} ({Title}; {Text}; {ProcessId})";
+
+        internal bool Visible
         {
             get => _visible;
             set
@@ -64,12 +94,11 @@ namespace WindowsLayoutSnapshot
             }
         }
 
-        public void Activate()
+        internal void Activate()
         {
             if (HWnd == GetForegroundWindow()) return;
 
-            var threadId1 = GetWindowThreadProcessId(GetForegroundWindow(),
-                IntPtr.Zero);
+            var threadId1 = GetWindowThreadProcessId(GetForegroundWindow(), IntPtr.Zero);
             var threadId2 = GetWindowThreadProcessId(HWnd, IntPtr.Zero);
 
             if (threadId1 != threadId2)
@@ -102,7 +131,10 @@ namespace WindowsLayoutSnapshot
         private static extern IntPtr GetForegroundWindow();
 
         [DllImport("user32.dll")]
-        private static extern IntPtr GetWindowThreadProcessId(IntPtr hWnd, IntPtr processId);
+        public static extern IntPtr GetWindowThreadProcessId(IntPtr hWnd, IntPtr processId);
+
+        [DllImport("user32.dll")]
+        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
         [DllImport("user32.dll")]
         private static extern IntPtr AttachThreadInput(IntPtr idAttach, IntPtr idAttachTo, int fAttach);

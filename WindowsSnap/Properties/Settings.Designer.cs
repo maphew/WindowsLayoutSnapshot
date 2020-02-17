@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace WindowsLayoutSnapshot.Properties {
+namespace WindowsSnap.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

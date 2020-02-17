@@ -4,7 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace WindowsLayoutSnapshot
+namespace WindowsSnap
 {
     internal partial class About : Form
     {
@@ -15,6 +15,7 @@ namespace WindowsLayoutSnapshot
             labelProductName.Text = AssemblyProduct;
             labelVersion.Text = $"Version {AssemblyVersion}";
             labelCopyright.Text = AssemblyCopyright;
+            labelDescription.Text = AssemblyDescription;
         }
 
         private void okButton_Click(object sender, EventArgs e)
@@ -22,26 +23,21 @@ namespace WindowsLayoutSnapshot
             Close();
         }
 
-        private void linkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            linkLabel.LinkVisited = true;
-            Process.Start("https://github.com/nefarius/WindowsLayoutSnapshot/releases");
-        }
-
-        #region Assembly Attribute Accessors
-
         public string AssemblyTitle
         {
             get
             {
                 var attributes = Assembly.GetExecutingAssembly()
-                    .GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
+                                         .GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
                 if (attributes.Length <= 0)
+                {
                     return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+                }
+
                 var titleAttribute = (AssemblyTitleAttribute) attributes[0];
                 return titleAttribute.Title != ""
-                    ? titleAttribute.Title
-                    : Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+                           ? titleAttribute.Title
+                           : Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
             }
         }
 
@@ -52,8 +48,10 @@ namespace WindowsLayoutSnapshot
             get
             {
                 var attributes = Assembly.GetExecutingAssembly()
-                    .GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false);
-                return attributes.Length == 0 ? "" : ((AssemblyDescriptionAttribute) attributes[0]).Description;
+                                         .GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false);
+                return attributes.Length == 0
+                           ? ""
+                           : ((AssemblyDescriptionAttribute) attributes[0]).Description;
             }
         }
 
@@ -62,8 +60,10 @@ namespace WindowsLayoutSnapshot
             get
             {
                 var attributes = Assembly.GetExecutingAssembly()
-                    .GetCustomAttributes(typeof(AssemblyProductAttribute), false);
-                return attributes.Length == 0 ? "" : ((AssemblyProductAttribute) attributes[0]).Product;
+                                         .GetCustomAttributes(typeof(AssemblyProductAttribute), false);
+                return attributes.Length == 0
+                           ? ""
+                           : ((AssemblyProductAttribute) attributes[0]).Product;
             }
         }
 
@@ -72,11 +72,11 @@ namespace WindowsLayoutSnapshot
             get
             {
                 var attributes = Assembly.GetExecutingAssembly()
-                    .GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);
-                return attributes.Length == 0 ? "" : ((AssemblyCopyrightAttribute) attributes[0]).Copyright;
+                                         .GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);
+                return attributes.Length == 0
+                           ? ""
+                           : ((AssemblyCopyrightAttribute) attributes[0]).Copyright;
             }
         }
-
-        #endregion
     }
 }
