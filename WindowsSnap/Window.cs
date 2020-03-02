@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -53,7 +54,15 @@ namespace WindowsSnap
                 _process = value;
                 ProcessName = _process?.ProcessName ?? "";
                 ProcessId = _process?.Id.ToString() ?? "";
-                ProcessPath = _process?.MainModule?.FileName ?? "";
+                try
+                {
+                    ProcessPath = _process?.MainModule?.FileName ?? "";
+                }
+                catch (Win32Exception)
+                {
+                    // This happens. Ignore it.
+                    ProcessPath = "";
+                }
             }
         }
         private Process _process;

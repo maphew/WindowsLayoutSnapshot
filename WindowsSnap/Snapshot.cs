@@ -370,6 +370,10 @@ namespace WindowsSnap
             try
             {
                 List<Process> processes = Process.GetProcesses().ToList();
+                if (string.IsNullOrWhiteSpace(window.ProcessPath))
+                {
+                    return IntPtr.Zero;
+                }
                 Process[] matchingProcesses = processes.Where(proc =>
                                                                   proc.ProcessName.Equals(window.ProcessName)
                                                                   && (proc.MainModule?.FileName?.Equals(window.ProcessPath) ?? false)).ToArray();

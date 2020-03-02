@@ -19,11 +19,14 @@ namespace WindowsSnap
         private readonly IntPtr _notificationHandle;
         private readonly List<Snapshot> _snapshots = new List<Snapshot>();
         private readonly Timer _snapshotTimer = new Timer();
-
+        private readonly TimeSpan _snapshotInterval = TimeSpan.FromMinutes(60);
+        private readonly TimeSpan _snapshotMinInterval = TimeSpan.FromMinutes(5);
+        
         private bool _firstStart = true;
         private Snapshot _menuShownSnapshot;
         private Padding? _originalTrayMenuArrowPadding;
         private Padding? _originalTrayMenuTextPadding;
+        private DateTime _lastAutoSnapshot = DateTime.MinValue;
 
         public TrayIconForm()
         {
@@ -32,7 +35,7 @@ namespace WindowsSnap
                 InitializeComponent();
                 Visible = false;
 
-                _snapshotTimer.Interval = (int) TimeSpan.FromMinutes(20).TotalMilliseconds;
+                _snapshotTimer.Interval = (int)_snapshotInterval.TotalMilliseconds;
                 _snapshotTimer.Tick += SnapshotTimer_Tick;
 
                 Cms = trayMenu;
@@ -47,8 +50,11 @@ namespace WindowsSnap
 
                 _snapshots = Logger.ReadWindowsSnapJson();
 
-                // Take first startup snapshot
-                TakeSnapshot(false);
+                // Take first startup snapshot, if none read in
+                if (_snapshots.Count < 1)
+                {
+                    TakeSnapshot(false);
+                }
             }
             catch (Exception ex)
             {
@@ -114,7 +120,6 @@ namespace WindowsSnap
 
         private void SnapshotTimer_Tick(object sender, EventArgs e)
         {
-            Logger.Log("Timer initiated snapshot.");
             TakeSnapshot(false);
         }
 
@@ -126,8 +131,22 @@ namespace WindowsSnap
 
         private void TakeSnapshot(bool userInitiated)
         {
+            if (!userInitiated && DateTime.Now < _lastAutoSnapshot + _snapshotMinInterval)
+            {
+                return;
+            }
+
             _snapshots.Add(Snapshot.TakeSnapshot(userInitiated));
+            _lastAutoSnapshot = DateTime.Now;
             UpdateRestoreChoicesInMenu();
+            try
+            {
+                Logger.WriteWindowsSnapJson(this._snapshots);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("Error writing JSON on snapshot: " + ex);
+            }
         }
 
         private void ClearSnapshotsToolStripMenuItem_Click(object sender, EventArgs e)

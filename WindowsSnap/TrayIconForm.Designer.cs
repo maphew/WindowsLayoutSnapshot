@@ -41,7 +41,7 @@ namespace WindowsSnap {
       // 
       this.trayIcon.ContextMenuStrip = this.trayMenu;
       this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
-      this.trayIcon.Text = "Window Layout Backup";
+      this.trayIcon.Text = "Windows Snap";
       this.trayIcon.Visible = true;
       this.trayIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.TrayIcon_MouseClick);
       // 
