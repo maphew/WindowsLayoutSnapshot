@@ -55,6 +55,10 @@ namespace WindowsSnap
                 {
                     TakeSnapshot(false);
                 }
+                else
+                {
+                    UpdateRestoreChoicesInMenu();
+                }
             }
             catch (Exception ex)
             {
@@ -195,8 +199,15 @@ namespace WindowsSnap
 
             foreach (var snapshot in snapshotsOldestFirst)
             {
-                RightImageToolStripMenuItem menuItem = GetMenuUtemForSnapshot(snapshot, showMonitorIcons, maxNumMonitorPixels);
-                newMenuItems.Add(menuItem);
+                try
+                {
+                    RightImageToolStripMenuItem menuItem = GetMenuItemForSnapshot(snapshot, showMonitorIcons, maxNumMonitorPixels);
+                    newMenuItems.Add(menuItem);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Error creating menu item: {ex}");
+                }
             }
 
             newMenuItems.Add(justNowToolStripMenuItem);
@@ -274,7 +285,7 @@ namespace WindowsSnap
                                                   _originalTrayMenuTextPadding.Value.Bottom));
         }
 
-        private RightImageToolStripMenuItem GetMenuUtemForSnapshot(Snapshot snapshot, bool showMonitorIcons, long maxNumMonitorPixels)
+        private RightImageToolStripMenuItem GetMenuItemForSnapshot(Snapshot snapshot, bool showMonitorIcons, long maxNumMonitorPixels)
         {
             var menuItem = new RightImageToolStripMenuItem(snapshot.GetDisplayString()) {Tag = snapshot};
             menuItem.Click += snapshot.Restore;
@@ -322,13 +333,13 @@ namespace WindowsSnap
                     // a hack to make manual snapshots prioritized over automated snapshots
                     if (y[i].UserInitiated)
                     {
-                        distanceBetweenNeighbors += TimeSpan.FromDays(1000000);
+                        distanceBetweenNeighbors += TimeSpan.FromDays(2000000);
                     }
 
                     // a hack to make very recent snapshots prioritized over other snapshots
                     if (DateTime.UtcNow.Subtract(y[i].TimeTaken).Duration() <= TimeSpan.FromHours(2))
                     {
-                        distanceBetweenNeighbors += TimeSpan.FromDays(2000000);
+                        distanceBetweenNeighbors += TimeSpan.FromDays(1000000);
                     }
 
                     if (distanceBetweenNeighbors < lowestDistanceBetweenNeighbors)
@@ -346,17 +357,22 @@ namespace WindowsSnap
 
         private static List<Snapshot> RemoveOldSnapshots(int maxNumSnapshots, List<Snapshot> y)
         {
-            // remove automatically-taken snapshots > 3 days old, or manual snapshots > 5 days old
+            // remove automatically-taken snapshots > 3 days old; do not remove manual snapshots
             for (var i = 0; i < y.Count; i++)
             {
-                if (y[i].Age > TimeSpan.FromDays(y[i].UserInitiated ? 5 : 3))
-                {
-                    y.RemoveAt(i);
-                }
-
                 if (y.Count <= maxNumSnapshots)
                 {
                     break;
+                }
+
+                if (y[i].UserInitiated)
+                {
+                    continue;
+                }
+
+                if (y[i].Age > TimeSpan.FromDays(3))
+                {
+                    y.RemoveAt(i);
                 }
             }
 

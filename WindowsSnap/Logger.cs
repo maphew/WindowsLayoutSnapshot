@@ -53,7 +53,6 @@ namespace WindowsSnap
                 using (var reader = new StreamReader(file))
                 {
                     var json = reader.ReadToEnd();
-                    Logger.Log("Read json: " + json);
                     return JsonConvert.DeserializeObject<List<Snapshot>>(json);
                 }
             }
@@ -73,7 +72,6 @@ namespace WindowsSnap
                 using (var sw = new StreamWriter(path))
                 {
                     var json = JsonConvert.SerializeObject(snapshots);
-                    Logger.Log("Writing json: " + json);
                     sw.Write(json);
                 }
             }
