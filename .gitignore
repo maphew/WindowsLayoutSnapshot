@@ -1,5 +1,7 @@
 # Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
-[Bb]in/
+[Bb]in/Debug
+[Bb]in/Release
+[Bb]in/x64
 [Oo]bj/
 
 # mstest test results
@@ -92,8 +94,6 @@ csx
 AppPackages/
 
 # Others
-[Bb]in
-[Oo]bj
 sql
 TestResults
 [Tt]est[Rr]esult*
@@ -113,3 +113,4 @@ UpgradeLog*.XML
 # patch artifacts
 *.rej
 *.orig
+
