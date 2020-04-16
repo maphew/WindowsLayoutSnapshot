@@ -4,8 +4,7 @@ Ever switched monitor configurations on your laptop and all of your windows are 
 
 WindowsLayoutSnapshot is a windows app to remember and restore window sizes and positions.
 
-You can download the binary from the [release page](../../releases).
-There's no installer; you can just put it in your Startup folder.
+There's not installer. After ***Building*** (below) you can just put it in your Startup folder.
 
 The app takes a "snapshot" of your windows layouts every thirty minutes.  You can see the list of snapshots when you click on the tray menu icon.
 
@@ -22,6 +21,28 @@ The app takes a "snapshot" of your windows layouts every thirty minutes.  You ca
 
 ## Screenshot
 ![](./screenshot.png)
+
+## Building
+Unfortunately there aren't any current release binaries. To build the  WindowsSnap.exe:
+- Install Visual Studio 2017*
+- install DotNet 4.8 developer pack*
+- clone or download WindowsSnap sources
+- run VS and open `WindowsSnap.sln`
+- answer yes to any prompts to install needed components
+- Reinstall nuget packages in VS: _Tools >> Nuget Package Manager >> console_  
+	`Update-Package -reinstall`
+- run _Build_ (`ctrl-shift-B`)
+
+Run `WindowsLayoutSnapshot\WindowsSnap\bin\x64\Debug\WindowsSnap.exe` and look in system tray for the icon. :)
+
+
+#### *\* Installing the build tools*
+Quick install recipe using Chocolatey package manager:
+
+    choco install visualstudio2017buildtools
+    choco install visualstudio2017-workload-manageddesktopbuildtools
+    choco install netfx-4.8-devpack
+
 
 ## License
 See `LICENSE` file.
